@@ -5,18 +5,314 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Watch Dealers: 20+ Qualified Buyers & Sellers Every Month — PEA Marketing</title>
-<!-- Facebook Pixel -->
+<!-- Meta Pixel Code (with eventID helper + secret + UTM persistence) -->
 <script>
-!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init','1837433380077602');
-fbq('track','PageView');
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '1837433380077602');
+
+// ====== GLOBAL HELPERS (event_id + secret) ======
+(function(){
+  const makeEventId = () =>
+    'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+
+  window.metaEventId = makeEventId();
+  window.__CAPI_SECRET = '3vph76tuc67gskykj3x5qich3t';
+
+  function safeTrim(v){
+    if (v == null) return '';
+    v = String(v);
+    return v.trim();
+  }
+
+  function readCurrentClickCtx(){
+    var ctx = {};
+    try {
+      var u = new URL(location.href);
+      var s = u.searchParams;
+      function g(name){
+        var v = s.get(name);
+        return v && v.trim() !== '' ? v.trim() : '';
+      }
+      ctx.utm_source      = g('utm_source');
+      ctx.utm_medium      = g('utm_medium');
+      ctx.utm_campaign    = g('utm_campaign');
+      ctx.utm_term        = g('utm_term');
+      ctx.utm_content     = g('utm_content');
+      ctx.utm_adset       = g('utm_adset');
+      ctx.utm_ad          = g('utm_ad');
+      ctx.utm_campaign_id = g('utm_campaign_id');
+      ctx.utm_adset_id    = g('utm_adset_id');
+      ctx.utm_ad_id       = g('utm_ad_id');
+      ctx.fbclid      = g('fbclid');
+      ctx.placement   = g('placement');
+      ctx.ad_id       = g('ad_id')       || g('utm_ad_id');
+      ctx.adset_id    = g('adset_id')    || g('utm_adset_id');
+      ctx.campaign_id = g('campaign_id') || g('utm_campaign_id');
+    } catch(e) {}
+    return ctx;
+  }
+
+  function mergeClickCtx(oldCtx, newCtx){
+    var out = {};
+    oldCtx = oldCtx || {};
+    newCtx = newCtx || {};
+    var keys = [
+      'utm_source','utm_medium','utm_campaign','utm_term','utm_content',
+      'utm_adset','utm_ad','utm_campaign_id','utm_adset_id','utm_ad_id',
+      'fbclid','placement','ad_id','adset_id','campaign_id'
+    ];
+    for (var i = 0; i < keys.length; i++){
+      var k = keys[i];
+      var vNew = safeTrim(newCtx[k]);
+      var vOld = safeTrim(oldCtx[k]);
+      if (vNew) out[k] = vNew;
+      else if (vOld) out[k] = vOld;
+    }
+    return out;
+  }
+
+  function loadStoredClickCtx(){
+    var stored = {};
+    try {
+      var raw = localStorage.getItem('dp_click_ctx');
+      if (raw) stored = JSON.parse(raw) || {};
+    } catch(e){}
+    if (!stored || typeof stored !== 'object') stored = {};
+    try {
+      if (!Object.keys(stored).length) {
+        var m = document.cookie.match(/(?:^|; )dp_click_ctx=([^;]+)/);
+        if (m) {
+          var cRaw = decodeURIComponent(m[1]);
+          var fromCookie = JSON.parse(cRaw);
+          if (fromCookie && typeof fromCookie === 'object') {
+            stored = fromCookie;
+          }
+        }
+      }
+    } catch(e){}
+    return stored;
+  }
+
+  function persistClickCtx(ctx){
+    if (!ctx || typeof ctx !== 'object') return;
+    var hasAny = false;
+    for (var k in ctx){
+      if (ctx.hasOwnProperty(k) && safeTrim(ctx[k])) { hasAny = true; break; }
+    }
+    if (!hasAny) return;
+    try {
+      var json = JSON.stringify(ctx);
+      localStorage.setItem('dp_click_ctx', json);
+      document.cookie =
+        'dp_click_ctx=' + encodeURIComponent(json) +
+        '; path=/; SameSite=Lax; max-age=' + (60*60*24*30);
+    } catch(e){}
+  }
+
+  var storedCtx  = loadStoredClickCtx();
+  var thisCtx    = readCurrentClickCtx();
+  var mergedCtx  = mergeClickCtx(storedCtx, thisCtx);
+  persistClickCtx(mergedCtx);
+
+  window.__CLICK_CTX = mergedCtx;
+  window.getClickContext = function(){ return window.__CLICK_CTX || {}; };
+  window.getClickParam = function(name){
+    var c = window.__CLICK_CTX || {};
+    var v = c && c[name];
+    if (v == null) return null;
+    return String(v);
+  };
+
+  function getCookie(n){
+    var m = document.cookie.match(new RegExp(n + '=([^;]+)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+
+  function uuidv4(){
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    var a = (window.crypto && window.crypto.getRandomValues)
+      ? crypto.getRandomValues(new Uint8Array(16))
+      : Array.from({length:16}, function(){ return Math.floor(Math.random() * 256); });
+    a[6] = (a[6] & 0x0f) | 0x40;
+    a[8] = (a[8] & 0x3f) | 0x80;
+    var h = Array.from(a, function(b){ return b.toString(16).padStart(2, '0'); }).join('');
+    return (
+      h.slice(0,8) + "-" +
+      h.slice(8,12) + "-" +
+      h.slice(12,16) + "-" +
+      h.slice(16,20) + "-" +
+      h.slice(20)
+    );
+  }
+
+  try {
+    var id =
+      localStorage.getItem('fb_external_id') ||
+      getCookie('fb_external_id') ||
+      uuidv4();
+    localStorage.setItem('fb_external_id', id);
+    document.cookie =
+      'fb_external_id=' + encodeURIComponent(id) +
+      '; path=/; SameSite=Lax; max-age=' + (60*60*24*365);
+    window.fbExternalId = id;
+
+    window.buildCapiPayload = function(extra){
+      return Object.assign({}, extra || {}, {
+        external_id: window.fbExternalId || null,
+        event_id: window.metaEventId || null,
+        secret: window.__CAPI_SECRET || null
+      });
+    };
+
+    var u = new URL(location.href);
+    if (!u.searchParams.get('external_id')) {
+      u.searchParams.set('external_id', id);
+      location.replace(u.toString());
+    }
+  } catch(e){}
+})();
 </script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1837433380077602&ev=PageView&noscript=1"/></noscript>
-<!-- End Facebook Pixel -->
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1837433380077602&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+<!-- Meta PageView + CAPI (with persistent UTMs) -->
+<script>
+(function () {
+  function onReady(fn){
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn);
+    } else { fn(); }
+  }
+  function getCookie(name){
+    var m = document.cookie.match(new RegExp(name + '=([^;]+)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  function setCookie(n, v, d){
+    try {
+      var dt = new Date();
+      dt.setTime(dt.getTime() + d * 864e5);
+      document.cookie = n + "=" + encodeURIComponent(v) +
+        "; expires=" + dt.toUTCString() + "; path=/; SameSite=Lax";
+    } catch(e){}
+  }
+
+  if (window.__capiPVLock) return;
+  window.__capiPVLock = true;
+  var ssKey = '__capi_pv_sent:' + location.pathname;
+  if (sessionStorage.getItem(ssKey)) return;
+  sessionStorage.setItem(ssKey, '1');
+  if (!window.__capiPVCooldown) window.__capiPVCooldown = 0;
+  if (Date.now() - window.__capiPVCooldown < 1500) return;
+  window.__capiPVCooldown = Date.now();
+
+  function getOrCreateExternalId(){
+    try {
+      var ls = localStorage.getItem('fb_external_id');
+      var ck = getCookie('fb_external_id');
+      var id = ls || ck;
+      if (!id) {
+        id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('id_' + Date.now());
+        localStorage.setItem('fb_external_id', id);
+        setCookie('fb_external_id', id, 365);
+      } else {
+        if (!ls) localStorage.setItem('fb_external_id', id);
+        if (!ck) setCookie('fb_external_id', id, 365);
+      }
+      return id;
+    } catch(e) {
+      var c = getCookie('fb_external_id');
+      if (!c) { c = 'id_' + Date.now(); setCookie('fb_external_id', c, 365); }
+      return c;
+    }
+  }
+
+  onReady(function () {
+    if (!window.metaEventId) {
+      window.metaEventId = 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    }
+    var externalId = window.fbExternalId || getOrCreateExternalId();
+    window.fbExternalId = externalId;
+    var secret = window.__CAPI_SECRET || null;
+    var SEND_PIXEL = true;
+    var SEND_CAPI  = !!secret;
+
+    if (SEND_PIXEL) {
+      try {
+        if (typeof fbq === 'function') {
+          fbq('track', 'PageView', { external_id: externalId }, { eventID: window.metaEventId });
+        }
+      } catch(e){}
+    }
+
+    if (SEND_CAPI) {
+      var qp  = new URLSearchParams(location.search);
+      var fbp = getCookie('_fbp') || null;
+      var _fbcCookie = getCookie('_fbc');
+      var rawFbclid = qp.get('fbclid');
+      var clickCtx = (typeof window.getClickContext === 'function') ? (window.getClickContext() || {}) : {};
+
+      function pick(name, fallback){
+        var fromCtx = clickCtx && clickCtx[name];
+        if (fromCtx != null && String(fromCtx).trim() !== '') return String(fromCtx).trim();
+        if (fallback != null && String(fallback).trim && String(fallback).trim() !== '') return String(fallback).trim();
+        return null;
+      }
+
+      var fbclid = pick('fbclid', rawFbclid);
+      var fbc = _fbcCookie ? _fbcCookie : (fbclid ? ('fb.1.' + Date.now() + '.' + fbclid) : null);
+
+      var basePayload = {
+        event_name: "PageView",
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: "website",
+        event_source_url: location.href,
+        document_referrer: document.referrer || "",
+        client_user_agent: navigator.userAgent,
+        fbp: fbp,
+        fbc: fbc,
+        fbclid: fbclid,
+        _debug_source: "pv_footer_v2",
+        utm_source:      pick('utm_source', qp.get('utm_source')),
+        utm_medium:      pick('utm_medium', qp.get('utm_medium')),
+        utm_campaign:    pick('utm_campaign', qp.get('utm_campaign')),
+        utm_term:        pick('utm_term', qp.get('utm_term')),
+        utm_content:     pick('utm_content', qp.get('utm_content')),
+        utm_adset:       pick('utm_adset', qp.get('utm_adset')),
+        utm_ad:          pick('utm_ad', qp.get('utm_ad')),
+        utm_campaign_id: pick('utm_campaign_id', qp.get('utm_campaign_id')),
+        utm_adset_id:    pick('utm_adset_id', qp.get('utm_adset_id')),
+        utm_ad_id:       pick('utm_ad_id', qp.get('utm_ad_id')),
+      };
+
+      var payload;
+      if (typeof window.buildCapiPayload === 'function') {
+        payload = window.buildCapiPayload(basePayload);
+      } else {
+        payload = Object.assign({}, basePayload, {
+          event_id: window.metaEventId, external_id: externalId, secret: secret
+        });
+      }
+
+      fetch("https://n8n-ls6p.srv1846570.hstgr.cloud/webhook/28fd5486-e543-4d02-9057-86fb0012a78a", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(function(){});
+    }
+  });
+})();
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
