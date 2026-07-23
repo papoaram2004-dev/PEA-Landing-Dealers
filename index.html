@@ -113,7 +113,7 @@ fbq('init', '1837433380077602');
       localStorage.setItem('dp_click_ctx', json);
       document.cookie =
         'dp_click_ctx=' + encodeURIComponent(json) +
-        '; path=/; SameSite=Lax; max-age=' + (60*60*24*30);
+        '; path=/; domain=.peamarketing.com; SameSite=Lax; max-age=' + (60*60*24*30);
     } catch(e){}
   }
 
@@ -161,7 +161,7 @@ fbq('init', '1837433380077602');
     localStorage.setItem('fb_external_id', id);
     document.cookie =
       'fb_external_id=' + encodeURIComponent(id) +
-      '; path=/; SameSite=Lax; max-age=' + (60*60*24*365);
+      '; path=/; domain=.peamarketing.com; SameSite=Lax; max-age=' + (60*60*24*365);
     window.fbExternalId = id;
 
     window.buildCapiPayload = function(extra){
@@ -202,7 +202,7 @@ src="https://www.facebook.com/tr?id=1837433380077602&ev=PageView&noscript=1"
       var dt = new Date();
       dt.setTime(dt.getTime() + d * 864e5);
       document.cookie = n + "=" + encodeURIComponent(v) +
-        "; expires=" + dt.toUTCString() + "; path=/; SameSite=Lax";
+        "; expires=" + dt.toUTCString() + "; path=/; domain=.peamarketing.com; SameSite=Lax";
     } catch(e){}
   }
 
