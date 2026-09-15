@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -644,12 +645,6 @@ function toggleFaq(btn){
   }
 }
 
-// FB Pixel — track CTA clicks as Lead events
-document.querySelectorAll('.btn-glow, .btn-primary, .nav-pill, .region-cta').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    if(typeof fbq !== 'undefined') fbq('track', 'Lead');
-  });
-});
 </script>
 
 <!-- Facebook Pixel (deferred) -->
